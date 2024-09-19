@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Horarios del Profesional</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+        .section {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .section h2 {
+            margin-top: 0;
+        }
+        .section label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .section input, .section select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .section button {
+            padding: 10px;
+            background-color: rgb(118, 238, 0);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .section button:hover {
+            background-color: #9cce00;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: rgb(118, 238, 0);
+            color: white;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .action-buttons button {
+            background-color: #ff6f6f;
+        }
+        .action-buttons button:hover {
+            background-color: #ff4c4c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Administración de Horarios</h1>
+    <div class="container">
+        <div class="section">
+            <h2>Mis Horarios Disponibles</h2>
+            <form id="schedule-form">
+                <label for="day">Día de la Semana:</label>
+                <select id="day" name="day">
+                    <option value="lunes">Lunes</option>
+                    <option value="martes">Martes</option>
+                    <option value="miércoles">Miércoles</option>
+                    <option value="jueves">Jueves</option>
+                    <option value="viernes">Viernes</option>
+                    <option value="sábado">Sábado</option>
+                    <option value="domingo">Domingo</option>
+                </select>
+
+                <label for="available-hours">Horas Disponibles:</label>
+                <input type="text" id="available-hours" name="available-hours" placeholder="Ej. 09:00 - 12:00, 14:00 - 17:00">
+
+                <label for="rest-days">Días de Descanso:</label>
+                <input type="text" id="rest-days" name="rest-days" placeholder="Ej. Lunes, Miércoles">
+
+                <button type="submit">Guardar Horarios</button>
+            </form>
+            <h3>Horarios Actuales</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Día</th>
+                        <th>Horas Disponibles</th>
+                        <th>Días de Descanso</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-table">
+                    <!-- Los horarios actuales se agregarán dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('schedule-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Aquí debes agregar la lógica para guardar los horarios en la base de datos
+            alert('Horarios actualizados correctamente.');
+            loadSchedules(); // Actualiza la lista de horarios después de guardar
+        });
+
+        function loadSchedules() {
+            // Esta función debería cargar los horarios desde la base de datos
+            // Ejemplo de datos para agregar a la tabla
+            const schedules = [
+                { day: 'Lunes', hours: '09:00 - 12:00, 14:00 - 17:00', restDays: 'Miércoles' },
+                { day: 'Martes', hours: '10:00 - 13:00', restDays: 'Viernes' }
+            ];
+
+            const tableBody = document.getElementById('schedule-table');
+            tableBody.innerHTML = '';
+            schedules.forEach((schedule, index) => {
+                const row = `<tr>
+                    <td>${schedule.day}</td>
+                    <td>${schedule.hours}</td>
+                    <td>${schedule.restDays}</td>
+                    <td class="action-buttons">
+                        <button onclick="editSchedule(${index})">Editar</button>
+                        <button onclick="deleteSchedule(${index})">Eliminar</button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function editSchedule(index) {
+            // Aquí debes agregar la lógica para editar el horario
+            alert(`Editar horario en la posición ${index}.`);
+        }
+
+        function deleteSchedule(index) {
+            // Aquí debes agregar la lógica para eliminar el horario
+            alert(`Eliminar horario en la posición ${index}.`);
+        }
+
+        // Cargar horarios cuando la página se cargue
+        document.addEventListener('DOMContentLoaded', loadSchedules);
+    </script>
+</body>
+</html>

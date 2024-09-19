@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interfaz con Barra Lateral</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px; /* Oculta la barra lateral por defecto */
+            background-color: #333;
+            color: white;
+            transition: left 0.3s ease;
+            overflow: auto;
+            padding: 15px;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .sidebar .logout {
+            margin-top: auto;
+            color: rgb(255, 99, 71);
+        }
+        .main-content {
+            margin-left: 0;
+            padding: 20px;
+            width: 100%;
+            transition: margin-left 0.3s ease;
+        }
+        .open-btn {
+            font-size: 22px;
+            cursor: pointer;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2;
+        }
+        .close-btn {
+            font-size: 22px;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .sidebar.active {
+            left: 0;
+        }
+        .main-content.active {
+            margin-left: 250px; /* Deja espacio para la barra lateral */
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra Lateral -->
+    <div class="sidebar" id="sidebar">
+        <span class="close-btn" onclick="toggleSidebar()">&times;</span>
+        <a href="PaginaPersonal.html">Inicio</a>
+        <a href="PaguinaPersonal.html">Administración de Horarios</a>
+        <!-- Agrega aquí otras secciones relevantes -->
+        <a href="PaginaPersonal.html" class="logout">Salir</a>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content" id="main-content">
+        <span class="open-btn" onclick="toggleSidebar()">&#9776;</span>
+        <h1>Bienvenido a la Interfaz</h1>
+        <!-- Aquí va el contenido principal -->
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('active');
+            mainContent.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

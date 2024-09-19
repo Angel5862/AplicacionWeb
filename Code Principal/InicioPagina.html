@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario para Agendar Citas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            background-color: #f9f9f9;
+        }
+        #calendar-container {
+            flex: 2;
+            text-align: center;
+        }
+        #calendar {
+            display: inline-block;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 1.5rem;
+        }
+        #calendar table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #calendar th, #calendar td {
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        #calendar th {
+            background-color: rgb(118, 238, 0);
+            color: white;
+        }
+        #calendar td {
+            cursor: pointer;
+            position: relative;
+        }
+        #calendar td::after {
+            content: '';
+            display: block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgb(31, 153, 229);
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            visibility: hidden;
+        }
+        #calendar td.today::after {
+            visibility: visible;
+        }
+        #calendar td:hover {
+            background-color: #f0f0f0;
+        }
+        #appointment-form {
+            display: none;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #appointment-form select, #appointment-form input[type="submit"] {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+        }
+        #appointment-form label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        #schedule-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: rgb(118, 238, 0);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        #schedule-button:hover {
+            background-color: #9cce00;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .nav-buttons button {
+            background-color: rgb(118, 238, 0);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .nav-buttons button:hover {
+            background-color: #9cce00;
+        }
+        #schedule-container {
+            flex: 1;
+            margin-left: 20px;
+        }
+        #schedule-container h3 {
+            margin-top: 0;
+        }
+        #schedule-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #schedule-container th, #schedule-container td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        #schedule-container th {
+            background-color: rgb(118, 238, 0);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <button id="schedule-button">Agendar Cita</button>
+
+    <div id="calendar-container">
+        <div class="nav-buttons">
+            <button id="prev-month">Mes Anterior</button>
+            <button id="next-month">Mes Siguiente</button>
+        </div>
+        <div id="calendar"></div>
+    </div>
+
+    <div id="schedule-container">
+        <h3>Horarios Disponibles</h3>
+        <div id="schedule-info">
+            <p>Selecciona una fecha para ver los horarios disponibles.</p>
+        </div>
+    </div>
+
+    <div id="appointment-form">
+        <form>
+            <label for="doctor">¿Con quién desea la cita?</label>
+            <select id="doctor" name="doctor">
+                <option value="dr">Doctor</option>
+                <option value="psychologist1">Psicólogo 1</option>
+                <option value="psychologist2">Psicólogo 2</option>
+            </select>
+            <label for="date">Fecha seleccionada:</label>
+            <input type="text" id="date" name="date" placeholder="Selecciona una fecha" readonly>
+            <input type="submit" value="Confirmar cita">
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var appointmentForm = document.getElementById('appointment-form');
+            var selectedDateInput = document.getElementById('date');
+            var prevMonthButton = document.getElementById('prev-month');
+            var nextMonthButton = document.getElementById('next-month');
+            var scheduleInfo = document.getElementById('schedule-info');
+
+            var currentMonth = new Date().getMonth();
+            var currentYear = new Date().getFullYear();
+            var today = new Date();
+            var todayDate = today.getDate();
+            var todayMonth = today.getMonth();
+            var todayYear = today.getFullYear();
+
+            var availability = {
+                '2024-09-15': {
+                    dr: ['09:00 - 12:00', '14:00 - 17:00'],
+                    psychologist1: ['10:00 - 13:00'],
+                    psychologist2: ['11:00 - 14:00']
+                },
+                '2024-09-16': {
+                    dr: ['08:00 - 11:00', '13:00 - 16:00'],
+                    psychologist1: ['09:00 - 12:00', '15:00 - 18:00'],
+                    psychologist2: ['10:00 - 13:00']
+                }
+                // Agrega más fechas y horarios según sea necesario
+            };
+
+            function generateCalendar(month, year) {
+                var daysInMonth = new Date(year, month + 1, 0).getDate();
+                var firstDay = new Date(year, month, 1).getDay();
+                var calendarHTML = '<table><thead><tr>';
+
+                // Encabezados de días
+                var daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                for (var i = 0; i < daysOfWeek.length; i++) {
+                    calendarHTML += '<th>' + daysOfWeek[i] + '</th>';
+                }
+                calendarHTML += '</tr></thead><tbody><tr>';
+
+                // Espacios antes del primer día
+                for (var i = 0; i < firstDay; i++) {
+                    calendarHTML += '<td></td>';
+                }
+
+                // Días del mes
+                for (var day = 1; day <= daysInMonth; day++) {
+                    var classToday = (day === todayDate && month === todayMonth && year === todayYear) ? 'today' : '';
+                    calendarHTML += '<td class="' + classToday + '">' + day + '</td>';
+                    if ((day + firstDay) % 7 === 0) {
+                        calendarHTML += '</tr><tr>';
+                    }
+                }
+
+                // Cerrar la tabla
+                calendarHTML += '</tr></tbody></table>';
+                calendarEl.innerHTML = calendarHTML;
+
+                // Agregar eventos de clic en las celdas
+                var cells = calendarEl.getElementsByTagName('td');
+                for (var j = 0; j < cells.length; j++) {
+                    cells[j].addEventListener('click', function() {
+                        if (this.textContent) {
+                            var selectedDate = this.textContent + '/' + (month + 1) + '/' + year;
+                            selectedDateInput.value = selectedDate;
+                            showSchedule(day, month + 1, year);
+                            appointmentForm.style.display = 'block';
+                        }
+                    });
+                }
+            }
+
+            function showSchedule(day, month, year) {
+                var dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                var schedule = availability[dateKey];
+
+                if (schedule) {
+                    var scheduleHTML = '<table><thead><tr><th>Profesional</th><th>Horarios</th></tr></thead><tbody>';
+                    for (var professional in schedule) {
+                        scheduleHTML += '<tr><td>' + professional + '</td><td>' + schedule[professional].join(', ') + '</td></tr>';
+                    }
+                    scheduleHTML += '</tbody></table>';
+                    scheduleInfo.innerHTML = scheduleHTML;
+                } else {
+                    scheduleInfo.innerHTML = '<p>No hay horarios disponibles para esta fecha.</p>';
+                }
+            }
+
+            function updateCalendar() {
+                generateCalendar(currentMonth, currentYear);
+            }
+
+            prevMonthButton.addEventListener('click', function() {
+                if (currentMonth === 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                } else {
+                    currentMonth--;
+                }
+                updateCalendar();
+            });
+
+            nextMonthButton.addEventListener('click', function() {
+                if (currentMonth === 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                } else {
+                    currentMonth++;
+                }
+                updateCalendar();
+            });
+
+            updateCalendar();
+
+            document.getElementById('schedule-button').addEventListener('click', function() {
+                var form = document.getElementById('appointment-form');
+                form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

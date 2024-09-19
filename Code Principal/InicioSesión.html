@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+            position: relative;
+        }
+        .login-container h2 {
+            margin-bottom: 20px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .login-container button:hover {
+            background-color: #218838;
+        }
+        .login-container a {
+            display: block;
+            margin-top: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .login-container a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 10px;
+            display: none;
+        }
+        #logo {
+            width: 100px; /* Ajusta el tamaño según sea necesario */
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <!-- Logo -->
+        <img src="Imagenes/iteshu.png" alt="Logo" id="logo">
+
+        <h2>Inicio de Sesión</h2>
+
+        <!-- Mensaje de error -->
+        <div id="error-message" class="error-message"></div>
+
+        <form id="login-form" action="login.php" method="POST">
+            <input type="text" name="matricula" id="matricula" placeholder="Matrícula" required>
+            <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+        <a href="formulario.html">Crear cuenta nueva</a>
+        <a href="#">¿Olvidaste tu contraseña?</a>
+    </div>
+
+    <script>
+        // Función para mostrar el mensaje de error debajo de la imagen
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const logo = document.getElementById('logo');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            logo.after(errorDiv);  // Coloca el mensaje de error justo debajo de la imagen
+        }
+
+        // Función para ocultar el mensaje de error
+        function hideError() {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.style.display = 'none';
+        }
+
+        // Capturar el envío del formulario
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();  // Evita que el formulario se envíe de manera tradicional
+
+            const matricula = document.getElementById('matricula').value;
+            const contrasena = document.getElementById('contrasena').value;
+
+            // Enviar los datos con AJAX
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'login.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Procesar la respuesta del servidor
+                    if (xhr.responseText === 'success') {
+                        window.location.href = 'InicioPagina.html';  // Redirigir si es exitoso
+                    } else {
+                        showError(xhr.responseText);  // Mostrar el error devuelto por PHP
+                    }
+                }
+            };
+
+            xhr.send(`matricula=${encodeURIComponent(matricula)}&contrasena=${encodeURIComponent(contrasena)}`);
+        });
+    </script>
+
+</body>
+</html>
